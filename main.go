@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -37,6 +36,8 @@ func main() {
 	cmds := commands{commandHandlers: make(map[string]func(*state, command) error)}
 	cmds.register("login", loginHandler)
 	cmds.register("register", registerHandler)
+	cmds.register("reset", resetHandler)
+	cmds.register("users", getUsersHandler)
 
 	if err := cmds.run(&s, cmd); err != nil {
 		log.Fatalf("Error running command: %s", err)
@@ -46,5 +47,4 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error reading updated config: %v", err)
 	}
-	fmt.Printf("DB URL: %s\nCurrent User: %s\n", cfg.DBUrl, cfg.CurrentUserName)
 }

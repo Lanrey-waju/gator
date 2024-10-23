@@ -83,3 +83,30 @@ func registerHandler(s *state, cmd command) error {
 	}
 
 }
+
+func resetHandler(s *state, cmd command) error {
+	if err := s.db.DeleteUsers(context.Background()); err != nil {
+		return fmt.Errorf("error resetting database: %v", err)
+	}
+	if err := s.cfg.SetUser("Nil"); err != nil {
+		return fmt.Errorf("Error setting user to NIL: %v\n", err)
+	}
+	fmt.Printf("Reset successful!\n")
+	return nil
+
+}
+
+func getUsersHandler(s *state, cmd command) error {
+	users, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("error retrieving users: %v\n", err)
+	}
+	for _, user := range users {
+		if user.Name == s.cfg.CurrentUserName {
+			fmt.Printf("* %s (current)\n", user.Name)
+		} else {
+			fmt.Printf("* %s\n", user.Name)
+		}
+	}
+	return nil
+}
