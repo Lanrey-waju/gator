@@ -33,7 +33,7 @@ func main() {
 
 	s := state{db: dbQueries, cfg: &cfg}
 
-	cmds := commands{commandHandlers: make(map[string]func(*state, command) error)}
+	cmds := commands{registeredCommands: make(map[string]func(*state, command) error)}
 	cmds.register("login", loginHandler)
 	cmds.register("register", registerHandler)
 	cmds.register("reset", resetHandler)
