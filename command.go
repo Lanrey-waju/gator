@@ -64,8 +64,8 @@ func registerHandler(s *state, cmd command) error {
 	if err == sql.ErrNoRows {
 		user, err = s.db.CreateUser(context.Background(), database.CreateUserParams{
 			ID:        uuid.New(),
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			CreatedAt: time.Now().UTC(),
+			UpdatedAt: time.Now().UTC(),
 			Name:      username,
 		})
 		if err != nil {
@@ -109,4 +109,18 @@ func getUsersHandler(s *state, cmd command) error {
 		}
 	}
 	return nil
+}
+
+func aggHandler(s *state, cmd command) error {
+	rssFeed, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		return fmt.Errorf("Error fetching feed: %v", err)
+	}
+	fmt.Printf("Channel Title: %s\n", rssFeed.Channel.Title)
+	for _, feed := range rssFeed.Channel.Item {
+		fmt.Printf("Title: %s\n", feed.Title)
+		fmt.Printf("Description: %s\n\n", feed.Description)
+	}
+	return nil
+
 }

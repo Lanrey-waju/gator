@@ -38,6 +38,7 @@ func main() {
 	cmds.register("register", registerHandler)
 	cmds.register("reset", resetHandler)
 	cmds.register("users", getUsersHandler)
+	cmds.register("agg", aggHandler)
 
 	if err := cmds.run(&s, cmd); err != nil {
 		log.Fatalf("Error running command: %s", err)
