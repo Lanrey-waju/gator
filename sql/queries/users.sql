@@ -9,7 +9,7 @@ VALUES
 )
 RETURNING *;
 
--- name: GetUser :one
+-- name: GetUserByName :one
 SELECT *
 FROM users
 WHERE name = $1
@@ -21,3 +21,9 @@ DELETE FROM users;
 -- name: GetUsers :many
 SELECT *
 FROM users;
+
+-- name: GetUserNameByID :one
+SELECT name
+FROM users
+WHERE name = $1
+LIMIT 1;

@@ -4,3 +4,13 @@ INSERT INTO feeds
 VALUES
     ($1, $2, $3, $4, $5, $6)
 RETURNING *;
+
+-- name: GetFeeds :many
+SELECT u.name as creator, f.name as feed_name, f.url
+FROM feeds f JOIN users u ON f.user_id = u.id;
+
+-- name: GetFeedByURL :one
+SELECT *
+FROM feeds
+WHERE url = $1
+LIMIT 1;

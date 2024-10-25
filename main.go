@@ -40,6 +40,9 @@ func main() {
 	cmds.register("users", getUsersHandler)
 	cmds.register("agg", aggHandler)
 	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("feeds", feedsHandler)
+	cmds.register("follow", followHandler)
+	cmds.register("following", followingHandler)
 
 	if err := cmds.run(&s, cmd); err != nil {
 		log.Fatalf("Error running command: %s", err)
