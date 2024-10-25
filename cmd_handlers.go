@@ -125,13 +125,9 @@ func aggHandler(s *state, cmd command) error {
 
 }
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.arg) < 2 {
 		return fmt.Errorf("command expects two arguments: name and url")
-	}
-	user, err := s.db.GetUserByName(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("Error retrieving user: %v", err)
 	}
 	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
 		ID:        uuid.New(),
@@ -145,7 +141,7 @@ func handlerAddFeed(s *state, cmd command) error {
 		return fmt.Errorf("Error creating feed: %v", err)
 	}
 	cmd = command{name: "follow", arg: []string{feed.Url}}
-	if err := followHandler(s, cmd); err != nil {
+	if err := followHandler(s, cmd, user); err != nil {
 		return fmt.Errorf("error following feed %s: %v", feed.Url, err)
 	}
 	fmt.Printf("Feed Name: %v\n Feed Url: %v\n", feed.Name, feed.Url)
@@ -164,17 +160,13 @@ func feedsHandler(s *state, cmd command) error {
 	return nil
 }
 
-func followHandler(s *state, cmd command) error {
+func followHandler(s *state, cmd command, user database.User) error {
 	if len(cmd.arg) < 1 {
 		return fmt.Errorf("follow command requires one argument: url")
 	}
 	feed, err := s.db.GetFeedByURL(context.Background(), cmd.arg[0])
 	if err != nil {
 		return fmt.Errorf("error retrieving feed with url: %v", err)
-	}
-	user, err := s.db.GetUserByName(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("error retrieving user: %v", err)
 	}
 	feed_follow, err := s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
 		ID:        uuid.New(),
@@ -191,11 +183,7 @@ func followHandler(s *state, cmd command) error {
 	return nil
 }
 
-func followingHandler(s *state, cmd command) error {
-	user, err := s.db.GetUserByName(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("error retrieving user: %v", err)
-	}
+func followingHandler(s *state, cmd command, user database.User) error {
 	feed_follows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return fmt.Errorf("error retrieving feed follows for user %s: %v", user.Name, err)

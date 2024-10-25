@@ -39,10 +39,10 @@ func main() {
 	cmds.register("reset", resetHandler)
 	cmds.register("users", getUsersHandler)
 	cmds.register("agg", aggHandler)
-	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	cmds.register("feeds", feedsHandler)
-	cmds.register("follow", followHandler)
-	cmds.register("following", followingHandler)
+	cmds.register("follow", middlewareLoggedIn(followHandler))
+	cmds.register("following", middlewareLoggedIn(followingHandler))
 
 	if err := cmds.run(&s, cmd); err != nil {
 		log.Fatalf("Error running command: %s", err)
