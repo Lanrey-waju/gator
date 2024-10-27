@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Lanrey-waju/gator.git/internal/config"
@@ -213,6 +214,29 @@ func handlerUnfollow(s *state, cmd command, user database.User) error {
 	})
 	if err != nil {
 		return fmt.Errorf("error deleting feed follow: %v", err)
+	}
+	return nil
+}
+
+func handlerBrowse(s *state, cmd command, user database.User) error {
+	limit := 2
+	var err error
+	if len(cmd.arg) == 1 {
+		if limit, err = strconv.Atoi(cmd.arg[0]); err != nil {
+			return fmt.Errorf("error converting limit argument: %v", err)
+		}
+	}
+	posts, err := s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+		UserID: user.ID,
+		Limit:  int32(limit),
+	})
+	if err != nil {
+		return fmt.Errorf("error retrieving posts for user %v", user.Name)
+	}
+	for _, post := range posts {
+		fmt.Println("Post Title:", post.Title)
+		fmt.Println("Post Description:", post.Description)
+		fmt.Println("")
 	}
 	return nil
 }
