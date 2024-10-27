@@ -112,16 +112,18 @@ func getUsersHandler(s *state, cmd command) error {
 }
 
 func aggHandler(s *state, cmd command) error {
-	rssFeed, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	time_between_reqs := cmd.arg[0]
+	timeBetweenRequests, err := time.ParseDuration(time_between_reqs)
 	if err != nil {
-		return fmt.Errorf("Error fetching feed: %v", err)
+		return fmt.Errorf("error parsing aggregation interval: %v", err)
 	}
-	fmt.Printf("Channel Title: %s\n", rssFeed.Channel.Title)
-	for _, feed := range rssFeed.Channel.Item {
-		fmt.Printf("Title: %s\n", feed.Title)
-		fmt.Printf("Description: %s\n\n", feed.Description)
+
+	ticker := time.NewTicker(timeBetweenRequests)
+	for ; ; <-ticker.C {
+		if err := scrapeFeeds(s); err != nil {
+			return fmt.Errorf("error aggregating feeds: %v", err)
+		}
 	}
-	return nil
 
 }
 
@@ -191,6 +193,26 @@ func followingHandler(s *state, cmd command, user database.User) error {
 	for _, feed_follow := range feed_follows {
 		fmt.Println(feed_follow.Follower)
 		fmt.Println(feed_follow.Feed, "\n")
+	}
+	return nil
+}
+
+func handlerUnfollow(s *state, cmd command, user database.User) error {
+	if len(cmd.arg) < 1 {
+		return fmt.Errorf("follow command requires one argument: url")
+	}
+	url := cmd.arg[0]
+	feed, err := s.db.GetFeedByURL(context.Background(), url)
+	if err != nil {
+		return fmt.Errorf("error retrieving feed with url %s: %v", url, err)
+	}
+
+	err = s.db.DeleteFeedFollow(context.Background(), database.DeleteFeedFollowParams{
+		UserID: user.ID,
+		FeedID: feed.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("error deleting feed follow: %v", err)
 	}
 	return nil
 }

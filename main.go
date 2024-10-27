@@ -43,6 +43,7 @@ func main() {
 	cmds.register("feeds", feedsHandler)
 	cmds.register("follow", middlewareLoggedIn(followHandler))
 	cmds.register("following", middlewareLoggedIn(followingHandler))
+	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 
 	if err := cmds.run(&s, cmd); err != nil {
 		log.Fatalf("Error running command: %s", err)
